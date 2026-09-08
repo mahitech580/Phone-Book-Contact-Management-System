@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Phone Book</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<div class="background">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
+<div class="app">
+
+    <header class="header">
+        <div class="brand">
+            <div class="brand-icon">◈</div>
+            <div class="brand-text">
+                <h1>Phone Book</h1>
+                <span>3D Contact Manager</span>
+            </div>
+        </div>
+
+        <div class="header-status">
+            <span class="status-dot"></span>
+            Python Connected
+        </div>
+    </header>
+
+    <main>
+
+        <section class="dashboard">
+
+            <div class="welcome-card">
+                <div class="welcome-content">
+                    <span class="small-label">PERSONAL CONTACT HUB</span>
+                    <h2>Your Contacts.<br><span>Beautifully Organized.</span></h2>
+                    <p>Manage your contacts with a futuristic 3D phone book powered by JavaScript and Python.</p>
+                    <button class="primary-button" onclick="openContactModal()">
+                        <span>＋</span>
+                        Add Contact
+                    </button>
+                </div>
+
+                <div class="phone-3d">
+                    <div class="phone-body">
+                        <div class="phone-screen">
+                            <div class="speaker"></div>
+                            <div class="screen-icon">☎</div>
+                            <div class="screen-text">PHONE<br>BOOK</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats">
+
+                <div class="stat-card">
+                    <div class="stat-icon">👤</div>
+                    <div class="stat-content">
+                        <span>Total Contacts</span>
+                        <strong id="totalContacts">0</strong>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">★</div>
+                    <div class="stat-content">
+                        <span>Favorites</span>
+                        <strong id="favoriteContacts">0</strong>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">◉</div>
+                    <div class="stat-content">
+                        <span>Categories</span>
+                        <strong id="totalCategories">0</strong>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="contacts-section">
+
+            <div class="section-header">
+                <div>
+                    <span class="small-label">YOUR DIRECTORY</span>
+                    <h2>Contacts <span id="visibleCount">0</span></h2>
+                </div>
+
+                <div class="search-container">
+                    <span class="search-icon">⌕</span>
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Search contacts..."
+                        oninput="searchContacts()"
+                    >
+                    <button type="button" onclick="clearSearch()">×</button>
+                </div>
+            </div>
+
+            <div class="filters">
+                <button class="filter active" onclick="filterContacts('all', this)">All</button>
+                <button class="filter" onclick="filterContacts('Family', this)">Family</button>
+                <button class="filter" onclick="filterContacts('Friends', this)">Friends</button>
+                <button class="filter" onclick="filterContacts('Work', this)">Work</button>
+                <button class="filter" onclick="filterContacts('Other', this)">Other</button>
+            </div>
+
+            <div id="contactsGrid" class="contacts-grid"></div>
+
+            <div id="emptyState" class="empty-state">
+                <div class="empty-icon">☎</div>
+                <h3>No Contacts Yet</h3>
+                <p>Add your first contact to start building your phone book.</p>
+                <button class="primary-button" onclick="openContactModal()">
+                    ＋ Add Your First Contact
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <span>3D PHONE BOOK</span>
+        <span>Python Dictionary Engine • Local Network</span>
+    </footer>
+
+</div>
+
+<div id="contactModal" class="modal">
+    <div class="modal-overlay" onclick="closeContactModal()"></div>
+
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeContactModal()">×</button>
+
+        <div class="modal-header">
+            <span class="small-label">CONTACT</span>
+            <h2 id="modalTitle">Add New Contact</h2>
+        </div>
+
+        <form id="contactForm">
+
+            <input type="hidden" id="editId">
+
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" placeholder="Enter full name" required>
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" placeholder="Enter phone number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category">
+                        <option value="Family">Family</option>
+                        <option value="Friends">Friends</option>
+                        <option value="Work">Work</option>
+                        <option value="Other" selected>Other</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Enter email address">
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Notes</label>
+                <textarea id="notes" rows="4" placeholder="Add notes..."></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="secondary-button" onclick="closeContactModal()">Cancel</button>
+                <button type="submit" class="primary-button">Save Contact</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<div id="deleteModal" class="modal">
+    <div class="modal-overlay" onclick="closeDeleteModal()"></div>
+
+    <div class="modal-box delete-box">
+        <button class="modal-close" onclick="closeDeleteModal()">×</button>
+
+        <div class="delete-icon">!</div>
+
+        <h2>Delete Contact?</h2>
+        <p>Are you sure you want to delete <strong id="deleteName"></strong>?</p>
+
+        <div class="modal-actions">
+            <button class="secondary-button" onclick="closeDeleteModal()">Cancel</button>
+            <button class="danger-button" onclick="confirmDelete()">Delete</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast">
+    <span id="toastIcon">✓</span>
+    <span id="toastMessage">Success</span>
+</div>
+
+<script src="index.js"></script>
+
+</body>
+</html>
