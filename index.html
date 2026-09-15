@@ -1,223 +1,616 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Phone Book</title>
+
+    <meta
+        name="description"
+        content="A modern 3D contact management system for organizing personal and professional contacts."
+    >
+
+    <meta name="author" content="Mahendra Sai Kondaveeti">
+
+    <title>Phone Book | Contact Management System</title>
+
     <link rel="stylesheet" href="index.css">
 </head>
+
 <body>
 
-<div class="background">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-</div>
+    <!-- Background Effects -->
+    <div class="background" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
 
-<div class="app">
 
-    <header class="header">
-        <div class="brand">
-            <div class="brand-icon">◈</div>
-            <div class="brand-text">
-                <h1>Phone Book</h1>
-                <span>3D Contact Manager</span>
-            </div>
-        </div>
+    <!-- Application Container -->
+    <div class="app">
 
-        <div class="header-status">
-            <span class="status-dot"></span>
-            Python Connected
-        </div>
-    </header>
+        <!-- Header -->
+        <header class="header">
 
-    <main>
+            <div class="brand">
 
-        <section class="dashboard">
-
-            <div class="welcome-card">
-                <div class="welcome-content">
-                    <span class="small-label">PERSONAL CONTACT HUB</span>
-                    <h2>Your Contacts.<br><span>Beautifully Organized.</span></h2>
-                    <p>Manage your contacts with a futuristic 3D phone book powered by JavaScript and Python.</p>
-                    <button class="primary-button" onclick="openContactModal()">
-                        <span>＋</span>
-                        Add Contact
-                    </button>
+                <div class="brand-icon" aria-hidden="true">
+                    ◈
                 </div>
 
-                <div class="phone-3d">
-                    <div class="phone-body">
-                        <div class="phone-screen">
-                            <div class="speaker"></div>
-                            <div class="screen-icon">☎</div>
-                            <div class="screen-text">PHONE<br>BOOK</div>
+                <div class="brand-text">
+                    <h1>Phone Book</h1>
+                    <span>Contact Management System</span>
+                </div>
+
+            </div>
+
+            <div class="header-status">
+                <span class="status-dot" aria-hidden="true"></span>
+                System Connected
+            </div>
+
+        </header>
+
+
+        <!-- Main Content -->
+        <main>
+
+            <!-- Dashboard -->
+            <section class="dashboard">
+
+                <!-- Welcome Card -->
+                <div class="welcome-card">
+
+                    <div class="welcome-content">
+
+                        <span class="small-label">
+                            PERSONAL CONTACT HUB
+                        </span>
+
+                        <h2>
+                            Manage Your Contacts.
+                            <br>
+                            <span>Simple. Fast. Organized.</span>
+                        </h2>
+
+                        <p>
+                            Store, search and organize your important contacts
+                            through a modern contact management interface.
+                        </p>
+
+                        <button
+                            type="button"
+                            class="primary-button"
+                            onclick="openContactModal()"
+                        >
+                            <span aria-hidden="true">＋</span>
+                            Add Contact
+                        </button>
+
+                    </div>
+
+
+                    <!-- 3D Phone -->
+                    <div class="phone-3d" aria-hidden="true">
+
+                        <div class="phone-body">
+
+                            <div class="phone-screen">
+
+                                <div class="speaker"></div>
+
+                                <div class="screen-icon">
+                                    ☎
+                                </div>
+
+                                <div class="screen-text">
+                                    PHONE
+                                    <br>
+                                    BOOK
+                                </div>
+
+                            </div>
+
                         </div>
+
                     </div>
+
                 </div>
-            </div>
 
-            <div class="stats">
 
-                <div class="stat-card">
-                    <div class="stat-icon">👤</div>
-                    <div class="stat-content">
-                        <span>Total Contacts</span>
-                        <strong id="totalContacts">0</strong>
+                <!-- Statistics -->
+                <div class="stats">
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon" aria-hidden="true">
+                            👤
+                        </div>
+
+                        <div class="stat-content">
+                            <span>Total Contacts</span>
+                            <strong id="totalContacts">0</strong>
+                        </div>
+
                     </div>
-                </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon">★</div>
-                    <div class="stat-content">
-                        <span>Favorites</span>
-                        <strong id="favoriteContacts">0</strong>
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon" aria-hidden="true">
+                            ★
+                        </div>
+
+                        <div class="stat-content">
+                            <span>Favorites</span>
+                            <strong id="favoriteContacts">0</strong>
+                        </div>
+
                     </div>
-                </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon">◉</div>
-                    <div class="stat-content">
-                        <span>Categories</span>
-                        <strong id="totalCategories">0</strong>
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon" aria-hidden="true">
+                            ◉
+                        </div>
+
+                        <div class="stat-content">
+                            <span>Categories</span>
+                            <strong id="totalCategories">0</strong>
+                        </div>
+
                     </div>
+
                 </div>
 
-            </div>
-        </section>
+            </section>
 
-        <section class="contacts-section">
 
-            <div class="section-header">
-                <div>
-                    <span class="small-label">YOUR DIRECTORY</span>
-                    <h2>Contacts <span id="visibleCount">0</span></h2>
+            <!-- Contacts Section -->
+            <section class="contacts-section">
+
+                <!-- Section Header -->
+                <div class="section-header">
+
+                    <div>
+
+                        <span class="small-label">
+                            YOUR DIRECTORY
+                        </span>
+
+                        <h2>
+                            Contacts
+                            <span id="visibleCount">0</span>
+                        </h2>
+
+                    </div>
+
+
+                    <!-- Search -->
+                    <div class="search-container">
+
+                        <span
+                            class="search-icon"
+                            aria-hidden="true"
+                        >
+                            ⌕
+                        </span>
+
+                        <input
+                            type="search"
+                            id="searchInput"
+                            placeholder="Search by name, phone or email..."
+                            autocomplete="off"
+                            oninput="searchContacts()"
+                            aria-label="Search contacts"
+                        >
+
+                        <button
+                            type="button"
+                            onclick="clearSearch()"
+                            aria-label="Clear search"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
                 </div>
 
-                <div class="search-container">
-                    <span class="search-icon">⌕</span>
-                    <input
-                        type="search"
-                        id="searchInput"
-                        placeholder="Search contacts..."
-                        oninput="searchContacts()"
+
+                <!-- Category Filters -->
+                <div class="filters">
+
+                    <button
+                        type="button"
+                        class="filter active"
+                        onclick="filterContacts('all', this)"
                     >
-                    <button type="button" onclick="clearSearch()">×</button>
+                        All
+                    </button>
+
+                    <button
+                        type="button"
+                        class="filter"
+                        onclick="filterContacts('Family', this)"
+                    >
+                        Family
+                    </button>
+
+                    <button
+                        type="button"
+                        class="filter"
+                        onclick="filterContacts('Friends', this)"
+                    >
+                        Friends
+                    </button>
+
+                    <button
+                        type="button"
+                        class="filter"
+                        onclick="filterContacts('Work', this)"
+                    >
+                        Work
+                    </button>
+
+                    <button
+                        type="button"
+                        class="filter"
+                        onclick="filterContacts('Other', this)"
+                    >
+                        Other
+                    </button>
+
                 </div>
+
+
+                <!-- Dynamic Contacts -->
+                <div
+                    id="contactsGrid"
+                    class="contacts-grid"
+                    aria-live="polite"
+                ></div>
+
+
+                <!-- Empty State -->
+                <div
+                    id="emptyState"
+                    class="empty-state"
+                >
+
+                    <div
+                        class="empty-icon"
+                        aria-hidden="true"
+                    >
+                        ☎
+                    </div>
+
+                    <h3>No Contacts Found</h3>
+
+                    <p>
+                        Your contact directory is currently empty.
+                        Add a contact to get started.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="primary-button"
+                        onclick="openContactModal()"
+                    >
+                        <span aria-hidden="true">＋</span>
+                        Add Your First Contact
+                    </button>
+
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <!-- Footer -->
+        <footer class="footer">
+
+            <span>
+                3D PHONE BOOK
+            </span>
+
+            <span>
+                Contact Management System • Local Application
+            </span>
+
+        </footer>
+
+    </div>
+
+
+
+    <!-- Add / Edit Contact Modal -->
+    <div
+        id="contactModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalTitle"
+    >
+
+        <div
+            class="modal-overlay"
+            onclick="closeContactModal()"
+        ></div>
+
+
+        <div class="modal-box">
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeContactModal()"
+                aria-label="Close contact form"
+            >
+                ×
+            </button>
+
+
+            <div class="modal-header">
+
+                <span class="small-label">
+                    CONTACT DETAILS
+                </span>
+
+                <h2 id="modalTitle">
+                    Add New Contact
+                </h2>
+
             </div>
 
-            <div class="filters">
-                <button class="filter active" onclick="filterContacts('all', this)">All</button>
-                <button class="filter" onclick="filterContacts('Family', this)">Family</button>
-                <button class="filter" onclick="filterContacts('Friends', this)">Friends</button>
-                <button class="filter" onclick="filterContacts('Work', this)">Work</button>
-                <button class="filter" onclick="filterContacts('Other', this)">Other</button>
-            </div>
 
-            <div id="contactsGrid" class="contacts-grid"></div>
+            <form id="contactForm">
 
-            <div id="emptyState" class="empty-state">
-                <div class="empty-icon">☎</div>
-                <h3>No Contacts Yet</h3>
-                <p>Add your first contact to start building your phone book.</p>
-                <button class="primary-button" onclick="openContactModal()">
-                    ＋ Add Your First Contact
-                </button>
-            </div>
+                <!-- Used for editing existing contacts -->
+                <input
+                    type="hidden"
+                    id="editId"
+                >
 
-        </section>
 
-    </main>
+                <!-- Name -->
+                <div class="form-group">
 
-    <footer class="footer">
-        <span>3D PHONE BOOK</span>
-        <span>Python Dictionary Engine • Local Network</span>
-    </footer>
+                    <label for="name">
+                        Full Name
+                    </label>
 
-</div>
+                    <input
+                        type="text"
+                        id="name"
+                        placeholder="Enter full name"
+                        minlength="2"
+                        maxlength="80"
+                        autocomplete="name"
+                        required
+                    >
 
-<div id="contactModal" class="modal">
-    <div class="modal-overlay" onclick="closeContactModal()"></div>
+                </div>
 
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeContactModal()">×</button>
 
-        <div class="modal-header">
-            <span class="small-label">CONTACT</span>
-            <h2 id="modalTitle">Add New Contact</h2>
+                <!-- Phone + Category -->
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label for="phone">
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            placeholder="Enter phone number"
+                            maxlength="20"
+                            autocomplete="tel"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="category">
+                            Category
+                        </label>
+
+                        <select id="category">
+
+                            <option value="Family">
+                                Family
+                            </option>
+
+                            <option value="Friends">
+                                Friends
+                            </option>
+
+                            <option value="Work">
+                                Work
+                            </option>
+
+                            <option value="Other" selected>
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Email -->
+                <div class="form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter email address"
+                        autocomplete="email"
+                    >
+
+                </div>
+
+
+                <!-- Notes -->
+                <div class="form-group">
+
+                    <label for="notes">
+                        Notes
+                    </label>
+
+                    <textarea
+                        id="notes"
+                        rows="4"
+                        maxlength="300"
+                        placeholder="Add additional information..."
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Actions -->
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        class="secondary-button"
+                        onclick="closeContactModal()"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-button"
+                    >
+                        Save Contact
+                    </button>
+
+                </div>
+
+            </form>
+
         </div>
 
-        <form id="contactForm">
+    </div>
 
-            <input type="hidden" id="editId">
 
-            <div class="form-group">
-                <label for="name">Full Name</label>
-                <input type="text" id="name" placeholder="Enter full name" required>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+        id="deleteModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="deleteTitle"
+    >
+
+        <div
+            class="modal-overlay"
+            onclick="closeDeleteModal()"
+        ></div>
+
+
+        <div class="modal-box delete-box">
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeDeleteModal()"
+                aria-label="Close delete confirmation"
+            >
+                ×
+            </button>
+
+
+            <div
+                class="delete-icon"
+                aria-hidden="true"
+            >
+                !
             </div>
 
-            <div class="form-row">
 
-                <div class="form-group">
-                    <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" placeholder="Enter phone number" required>
-                </div>
+            <h2 id="deleteTitle">
+                Delete Contact?
+            </h2>
 
-                <div class="form-group">
-                    <label for="category">Category</label>
-                    <select id="category">
-                        <option value="Family">Family</option>
-                        <option value="Friends">Friends</option>
-                        <option value="Work">Work</option>
-                        <option value="Other" selected>Other</option>
-                    </select>
-                </div>
 
-            </div>
+            <p>
+                Are you sure you want to delete
+                <strong id="deleteName"></strong>?
+                This action cannot be undone.
+            </p>
 
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" placeholder="Enter email address">
-            </div>
-
-            <div class="form-group">
-                <label for="notes">Notes</label>
-                <textarea id="notes" rows="4" placeholder="Add notes..."></textarea>
-            </div>
 
             <div class="modal-actions">
-                <button type="button" class="secondary-button" onclick="closeContactModal()">Cancel</button>
-                <button type="submit" class="primary-button">Save Contact</button>
+
+                <button
+                    type="button"
+                    class="secondary-button"
+                    onclick="closeDeleteModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    class="danger-button"
+                    onclick="confirmDelete()"
+                >
+                    Delete
+                </button>
+
             </div>
 
-        </form>
-    </div>
-</div>
-
-<div id="deleteModal" class="modal">
-    <div class="modal-overlay" onclick="closeDeleteModal()"></div>
-
-    <div class="modal-box delete-box">
-        <button class="modal-close" onclick="closeDeleteModal()">×</button>
-
-        <div class="delete-icon">!</div>
-
-        <h2>Delete Contact?</h2>
-        <p>Are you sure you want to delete <strong id="deleteName"></strong>?</p>
-
-        <div class="modal-actions">
-            <button class="secondary-button" onclick="closeDeleteModal()">Cancel</button>
-            <button class="danger-button" onclick="confirmDelete()">Delete</button>
         </div>
+
     </div>
-</div>
 
-<div id="toast" class="toast">
-    <span id="toastIcon">✓</span>
-    <span id="toastMessage">Success</span>
-</div>
 
-<script src="index.js"></script>
+
+    <!-- Toast Notification -->
+    <div
+        id="toast"
+        class="toast"
+        role="status"
+        aria-live="polite"
+    >
+
+        <span id="toastIcon">
+            ✓
+        </span>
+
+        <span id="toastMessage">
+            Success
+        </span>
+
+    </div>
+
+
+
+    <!-- JavaScript -->
+    <script src="index.js"></script>
 
 </body>
 </html>
+```
+
+The important part is that I **didn't change your existing structure/classes/IDs**, so your current `index.css` and `index.js` can continue working. I mainly improved the HTML semantics, accessibility, validation attributes, metadata, wording, and overall code quality so it looks more like a genuine fresher GitHub project rather than a basic template.
+
+For the next step, I would change **`index.js`** while keeping this exact HTML structure, so the project has stronger functionality without changing its visual design.
