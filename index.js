@@ -1,4 +1,4 @@
-```javascript
+
 "use strict";
 
 /*
@@ -936,4 +936,3 @@ window.toggleFavorite = toggleFavorite;
 window.openDeleteModal = openDeleteModal;
 window.closeDeleteModal = closeDeleteModal;
 window.confirmDelete = confirmDelete;
-```
