@@ -1,4 +1,4 @@
-```python
+
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime
@@ -870,4 +870,3 @@ def start_server():
 
 if __name__ == "__main__":
     start_server()
-```
