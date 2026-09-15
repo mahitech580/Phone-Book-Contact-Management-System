@@ -1,53 +1,59 @@
-Phone Book — Contact Management System
+# Phone Book — Contact Management System
 
-A modern, futuristic **3D Phone Book / Contact Management System** built with **HTML, CSS, JavaScript, and pure Python**.
+A modern **3D Contact Management System** built with **HTML, CSS, JavaScript, and pure Python**.
 
-The application provides an attractive 3D-style interface for managing personal contacts with features such as adding, editing, searching, categorizing, favoriting, and deleting contacts.
+The application provides a futuristic interface for managing contacts through a lightweight Python HTTP API. Users can add, update, search, categorize, favorite, and delete contacts without requiring Flask, Django, or an external database.
 
 ## 🚀 Live Demo
 
-🔗 **[3D Phone Book](https://mahitech580.github.io/Phone-Book-Contact-Management-System/)**
+🔗 **[Open 3D Phone Book](https://mahitech580.github.io/Phone-Book-Contact-Management-System/)**
 
-> **Note:** The GitHub Pages version provides the frontend interface. The Python backend must be running locally for full contact-management functionality.
+> **Note:** GitHub Pages hosts the frontend only. The Python backend must be running locally to perform contact-management operations.
 
 ---
 
 ## ✨ Features
 
-* 📇 Add new contacts
+* 📇 Add contacts
 * ✏️ Edit existing contacts
 * 🗑️ Delete contacts
-* ⭐ Mark contacts as favorites
-* 🔍 Search contacts instantly
-* 🏷️ Categorize contacts
+* ⭐ Add or remove favorites
+* 🔍 Search by name, phone, email, category, or notes
+* 🏷️ Filter contacts by category
 
   * Family
   * Friends
   * Work
   * Other
 * 📧 Store email addresses
-* 📝 Add contact notes
-* 📊 Real-time contact statistics
-* 🔢 Contact count
-* 🎨 Futuristic 3D interface
-* 📱 Responsive design
-* ⚡ Fast client-side interactions
+* 📝 Add notes to contacts
+* 📊 Display contact statistics
+* 🔢 Show total visible contacts
+* 🎨 Futuristic glass-style 3D interface
+* 📱 Responsive layout for desktop, tablet, and mobile
+* 🔔 Toast notifications
+* 🪟 Modal-based forms
+* ⌨️ Escape-key modal handling
+* ✅ Client-side and server-side validation
+* 🔌 REST-style Python API
 * 🐍 Pure Python backend
-* 💾 In-memory Python dictionary storage
-* 🔌 REST-style API endpoints
+* 💾 In-memory dictionary storage
 * 🚫 No Flask
 * 🚫 No external database
-* 🚫 No external frontend framework
+* 🚫 No frontend framework
 
 ---
 
-## 🛠️ Technologies Used
+## 🛠️ Technologies
 
 ### Frontend
 
 * **HTML5**
 * **CSS3**
 * **JavaScript (ES6+)**
+* Fetch API
+* DOM manipulation
+* Responsive CSS
 
 ### Backend
 
@@ -56,10 +62,11 @@ The application provides an attractive 3D-style interface for managing personal 
 * `json`
 * `uuid`
 * `datetime`
+* `urllib.parse`
 
 ### Storage
 
-Contacts are stored in a Python dictionary:
+Contacts are maintained in an in-memory Python dictionary:
 
 ```python
 phone_book = {}
@@ -74,69 +81,126 @@ No MySQL, MongoDB, PostgreSQL, Firebase, or other external database is required.
 ```text
 Phone-Book-Contact-Management-System/
 │
-├── index.html      # Main application interface
-├── index.css       # 3D UI and responsive styling
-├── index.js        # Frontend logic and API communication
-├── index.py        # Python HTTP server and contact API
+├── index.html      # Application interface
+├── index.css       # Styling, 3D effects and responsive layout
+├── index.js        # Frontend state, UI and API communication
+├── index.py        # Python HTTP server and REST-style API
 └── README.md       # Project documentation
 ```
 
 ---
 
-## 🔄 How It Works
+## 🧩 Architecture
 
-The project follows a simple architecture:
+The application follows a simple frontend-to-backend architecture:
 
 ```text
-┌──────────────────────┐
-│      index.html      │
-│     User Interface   │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│       index.css      │
-│    3D / Responsive   │
-│        Design        │
-└──────────────────────┘
-           │
-           ▼
-┌──────────────────────┐
-│       index.js       │
-│  Application Logic   │
-│     & API Calls      │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│       index.py       │
-│   Python HTTP API    │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│   Python Dictionary  │
-│    Contact Storage   │
-└──────────────────────┘
+┌──────────────────────────┐
+│        index.html        │
+│      UI Components       │
+└────────────┬─────────────┘
+             │
+             ▼
+┌──────────────────────────┐
+│        index.css         │
+│  Responsive 3D Styling   │
+└──────────────────────────┘
+             │
+             ▼
+┌──────────────────────────┐
+│         index.js         │
+│  State + DOM + Fetch API │
+└────────────┬─────────────┘
+             │
+             │ HTTP / JSON
+             ▼
+┌──────────────────────────┐
+│         index.py         │
+│     Python HTTP API      │
+└────────────┬─────────────┘
+             │
+             ▼
+┌──────────────────────────┐
+│     Python Dictionary    │
+│      In-Memory Data      │
+└──────────────────────────┘
 ```
 
 ---
 
-## ⚙️ Run Locally
+## 🔄 Application Flow
 
-### 1. Clone the repository
+### Adding a Contact
+
+```text
+User
+ ↓
+Contact Form
+ ↓
+JavaScript Validation
+ ↓
+POST /api/contacts
+ ↓
+Python API
+ ↓
+Dictionary Storage
+ ↓
+JSON Response
+ ↓
+UI Refresh
+```
+
+### Editing a Contact
+
+```text
+User
+ ↓
+Edit Contact
+ ↓
+PUT /api/contacts/{id}
+ ↓
+Python API
+ ↓
+Update Contact
+ ↓
+JSON Response
+ ↓
+UI Refresh
+```
+
+### Deleting a Contact
+
+```text
+User
+ ↓
+Delete Confirmation
+ ↓
+DELETE /api/contacts/{id}
+ ↓
+Python API
+ ↓
+Remove Contact
+ ↓
+UI Refresh
+```
+
+---
+
+# ⚙️ Run Locally
+
+## 1. Clone the repository
 
 ```bash
 git clone https://github.com/mahitech580/Phone-Book-Contact-Management-System.git
 ```
 
-### 2. Open the project
+## 2. Open the project
 
 ```bash
 cd Phone-Book-Contact-Management-System
 ```
 
-### 3. Start the Python server
+## 3. Start the Python server
 
 Make sure Python 3 is installed.
 
@@ -144,24 +208,26 @@ Make sure Python 3 is installed.
 python index.py
 ```
 
-You should see:
+You should see something similar to:
 
 ```text
-=======================================================
-              3D PHONE BOOK
-=======================================================
-Backend:    Plain Python
-Storage:    Python Dictionary
-Server:     http://127.0.0.1:8000
-API:        http://127.0.0.1:8000/api
-Contacts:   0
-=======================================================
+============================================================
+               PHONE BOOK SYSTEM
+============================================================
+Host:        127.0.0.1
+Port:        8000
+Application: http://127.0.0.1:8000
+API:         http://127.0.0.1:8000/api
+Backend:     Python HTTP Server
+Storage:     In-Memory Dictionary
+Status:      Running
+============================================================
 Press CTRL+C to stop the server.
 ```
 
-### 4. Open the application
+## 4. Open the application
 
-Open:
+Visit:
 
 ```text
 http://127.0.0.1:8000
@@ -169,37 +235,40 @@ http://127.0.0.1:8000
 
 ### ⚠️ Important
 
-Do **not** open `index.html` directly using `file://`.
-
-The application needs the Python HTTP server to communicate with the backend.
-
----
-
-## 🔌 API Endpoints
-
-The Python backend provides several endpoints.
-
-| Method   | Endpoint                      | Purpose                |
-| -------- | ----------------------------- | ---------------------- |
-| `GET`    | `/api`                        | API information        |
-| `GET`    | `/api/contacts`               | Get all contacts       |
-| `GET`    | `/api/stats`                  | Get contact statistics |
-| `GET`    | `/api/search?q=`              | Search contacts        |
-| `GET`    | `/api/contacts/favorites`     | Get favorite contacts  |
-| `GET`    | `/api/contacts/{id}`          | Get a specific contact |
-| `POST`   | `/api/contacts`               | Create a contact       |
-| `PUT`    | `/api/contacts/{id}`          | Update a contact       |
-| `PATCH`  | `/api/contacts/{id}/favorite` | Toggle favorite        |
-| `DELETE` | `/api/contacts/{id}`          | Delete a contact       |
-| `DELETE` | `/api/contacts`               | Delete all contacts    |
-
----
-
-## 📋 Contact Information
-
-Each contact can contain:
+Do **not** open `index.html` directly with:
 
 ```text
+file://
+```
+
+Run the Python server first so the frontend can communicate with the API.
+
+---
+
+# 🔌 API Endpoints
+
+| Method   | Endpoint                      | Description                      |
+| -------- | ----------------------------- | -------------------------------- |
+| `GET`    | `/api`                        | API status and basic information |
+| `GET`    | `/api/contacts`               | Get all contacts                 |
+| `GET`    | `/api/contacts/{id}`          | Get one contact                  |
+| `GET`    | `/api/stats`                  | Get contact statistics           |
+| `GET`    | `/api/search?q=`              | Search contacts                  |
+| `GET`    | `/api/contacts/favorites`     | Get favorite contacts            |
+| `POST`   | `/api/contacts`               | Create a contact                 |
+| `PUT`    | `/api/contacts/{id}`          | Update a contact                 |
+| `PATCH`  | `/api/contacts/{id}/favorite` | Toggle favorite status           |
+| `DELETE` | `/api/contacts/{id}`          | Delete one contact               |
+| `DELETE` | `/api/contacts`               | Delete all contacts              |
+
+---
+
+# 📋 Contact Data
+
+A contact can contain:
+
+```text
+ID
 Name
 Phone Number
 Email
@@ -210,96 +279,147 @@ Created Date
 Updated Date
 ```
 
+Example:
+
+```json
+{
+    "id": "contact-id",
+    "name": "John Doe",
+    "phone": "9876543210",
+    "email": "john@example.com",
+    "category": "Friends",
+    "notes": "College friend",
+    "favorite": true,
+    "createdAt": "2026-09-16T00:30:00",
+    "updatedAt": "2026-09-16T00:35:00"
+}
+```
+
 ---
 
-## 🎨 UI Highlights
+# ✅ Validation
+
+The application performs validation on both the frontend and backend.
+
+### Name
+
+* Required
+* Minimum 2 characters
+
+### Phone Number
+
+* Required
+* 7–15 numeric digits
+* Duplicate phone numbers are rejected
+
+### Email
+
+* Optional
+* Basic email-format validation on the frontend
+
+This prevents common invalid inputs before they are stored.
+
+---
+
+# 🎨 UI Highlights
 
 The interface includes:
 
-* 🌌 Animated futuristic background
-* 💎 Glassmorphism-style cards
+* 🌌 Animated background orbs
+* 💎 Glassmorphism-style surfaces
 * 📱 3D phone visualization
-* ✨ Neon-style interface elements
-* 🔎 Interactive search
+* ✨ Neon-inspired accents
+* 🔎 Live contact search
 * 🏷️ Category filters
-* ⭐ Favorite system
-* 🪟 Modal-based contact forms
+* ⭐ Favorite contacts
+* 🪟 Add/edit/delete modals
 * 🔔 Toast notifications
-* 📱 Responsive mobile layout
+* 📊 Live dashboard statistics
+* 📱 Mobile-responsive layout
+* ♿ Reduced-motion support
 
 ---
 
-## 💡 Why This Project?
+# 💡 What This Project Demonstrates
 
-This project demonstrates how a web frontend can communicate with a **custom Python HTTP server without using Flask or another backend framework**.
+This project demonstrates how a frontend application can communicate with a custom Python HTTP server without relying on a backend framework.
 
-It combines:
+It covers:
 
-* Frontend development
-* JavaScript DOM manipulation
-* REST-style API communication
-* Python HTTP handling
-* Dictionary-based data structures
+* HTML page structure
+* Responsive CSS
+* JavaScript state management
+* DOM manipulation
+* Fetch API
+* JSON-based communication
+* REST-style API design
 * CRUD operations
-* Responsive UI design
+* HTTP methods
+* Request validation
+* Error handling
+* Python HTTP request handling
+* UUID-based identifiers
+* Dictionary-based data storage
+* Responsive UI development
 
 ---
 
-## ⚠️ Data Storage Limitation
+# ⚠️ Storage Limitation
 
-The current version stores contacts in a Python dictionary:
+The current implementation stores contacts in memory:
 
 ```python
 phone_book = {}
 ```
 
-Therefore, contacts are stored **only while the Python server is running**.
+This means contact data is lost whenever the Python server stops or restarts.
 
-If the Python server is stopped or restarted, the contacts are lost.
+This is intentional for the current lightweight implementation.
 
-### Future improvement
+## Future storage options
 
-Persistent storage could be added using:
+The backend can later be extended to use:
 
-* JSON file
+* JSON file storage
 * SQLite
 * MySQL
 * PostgreSQL
 
-without changing the overall frontend architecture significantly.
+The frontend API architecture can remain largely unchanged while replacing the storage layer.
 
 ---
 
-## 🔮 Future Enhancements
+# 🔮 Future Enhancements
 
-Possible future improvements include:
+Potential improvements include:
 
 * 🔐 User authentication
-* 💾 Persistent contact storage
-* 📤 Import contacts
-* 📥 Export contacts
-* 🖼️ Contact profile pictures
+* 💾 Persistent database storage
+* 📤 CSV contact import
+* 📥 CSV contact export
+* 🖼️ Contact profile images
 * 📞 One-click calling
 * 📧 One-click email
-* 🌙 Multiple themes
+* 🌙 Theme switching
 * 🔔 Contact reminders
 * ☁️ Cloud synchronization
 * 📱 Progressive Web App support
-* 🤖 AI-powered contact organization
+* 🤖 AI-assisted contact organization
+* 🧪 Automated API testing
 
 ---
 
-## 📸 Project Preview
+# 📸 Project
 
 ### 3D Phone Book
 
-🔗 **[Open Live Demo](https://mahitech580.github.io/Phone-Book-Contact-Management-System/)**
+🔗 **[View Live Demo](https://mahitech580.github.io/Phone-Book-Contact-Management-System/)**
 
 ---
 
-## 👨‍💻 Author
+# 👨‍💻 Author
 
-**Mahendra**
+**Mahendra Sai Kondaveeti**
 
 B.Tech — Computer Science & Engineering
 
@@ -307,10 +427,10 @@ GitHub: **[@mahitech580](https://github.com/mahitech580)**
 
 ---
 
-## 📄 License
+# 📄 License
 
 This project is open-source and available for learning, personal projects, and portfolio use.
 
 ---
 
-⭐ If you find this project useful, consider giving the repository a star!
+⭐ **If you find the project useful, consider starring the repository!**
