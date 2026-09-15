@@ -1,111 +1,193 @@
+```javascript
 "use strict";
 
-const API = "http://127.0.0.1:8000/api";
+/*
+ * Phone Book Contact Management System
+ * Frontend controller
+ */
 
-let contacts = [];
-let currentFilter = "all";
-let deleteContactId = null;
-let toastTimer = null;
+const API_BASE_URL = "http://127.0.0.1:8000/api";
+
+const state = {
+    contacts: [],
+    activeFilter: "all",
+    pendingDeleteId: null,
+    toastTimer: null
+};
+
+
+/* =========================================
+   DOM HELPERS
+========================================= */
 
 const $ = id => document.getElementById(id);
 
-document.addEventListener("DOMContentLoaded", () => {
-    setupButtons();
-    setupForm();
-    setupKeyboard();
+const $$ = selector =>
+    Array.from(document.querySelectorAll(selector));
+
+
+/* =========================================
+   INITIALIZATION
+========================================= */
+
+document.addEventListener("DOMContentLoaded", initializeApp);
+
+function initializeApp() {
+    bindFormEvents();
+    bindModalEvents();
+    bindKeyboardEvents();
+
     loadContacts();
-});
+}
 
-function setupButtons() {
-    document.querySelectorAll(".primary-button").forEach(button => {
-        button.addEventListener("click", event => {
-            const text = button.textContent.toLowerCase();
 
-            if (text.includes("add")) {
-                event.preventDefault();
-                openContactModal();
-            }
-        });
-    });
+/* =========================================
+   FORM EVENTS
+========================================= */
 
-    document.querySelectorAll(".modal-overlay").forEach(overlay => {
+function bindFormEvents() {
+    const contactForm = $("contactForm");
+
+    if (!contactForm) {
+        console.warn("contactForm was not found.");
+        return;
+    }
+
+    contactForm.addEventListener("submit", handleContactSubmit);
+}
+
+
+/* =========================================
+   MODAL EVENTS
+========================================= */
+
+function bindModalEvents() {
+    $$(".modal-overlay").forEach(overlay => {
         overlay.addEventListener("click", () => {
             const modal = overlay.closest(".modal");
 
-            if (modal && modal.id === "contactModal") {
+            if (!modal) {
+                return;
+            }
+
+            if (modal.id === "contactModal") {
                 closeContactModal();
             }
 
-            if (modal && modal.id === "deleteModal") {
+            if (modal.id === "deleteModal") {
                 closeDeleteModal();
             }
         });
     });
 }
 
-function setupForm() {
-    const form = $("contactForm");
 
-    if (form) {
-        form.addEventListener("submit", handleContactSubmit);
-    }
-}
+/* =========================================
+   KEYBOARD EVENTS
+========================================= */
 
-function setupKeyboard() {
+function bindKeyboardEvents() {
     document.addEventListener("keydown", event => {
-        if (event.key === "Escape") {
-            closeContactModal();
-            closeDeleteModal();
+        if (event.key !== "Escape") {
+            return;
         }
+
+        closeContactModal();
+        closeDeleteModal();
     });
 }
 
+
+/* =========================================
+   API REQUEST HELPER
+========================================= */
+
+async function apiRequest(endpoint, options = {}) {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers: {
+            ...(options.body
+                ? { "Content-Type": "application/json" }
+                : {}),
+            ...(options.headers || {})
+        }
+    });
+
+    let data = {};
+
+    try {
+        data = await response.json();
+    } catch {
+        data = {};
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            data.error ||
+            `Request failed with status ${response.status}`
+        );
+    }
+
+    return data;
+}
+
+
+/* =========================================
+   LOAD CONTACTS
+========================================= */
+
 async function loadContacts() {
     try {
-        const response = await fetch(`${API}/contacts`);
+        const data = await apiRequest("/contacts");
 
-        if (!response.ok) {
-            throw new Error("Python server is not running");
-        }
-
-        const data = await response.json();
-        contacts = Array.isArray(data.contacts) ? data.contacts : [];
+        state.contacts = Array.isArray(data.contacts)
+            ? data.contacts
+            : [];
 
         renderContacts();
         updateStatistics();
     } catch (error) {
-        contacts = [];
+        state.contacts = [];
+
         renderContacts();
         updateStatistics();
-        showToast("Python server is not connected", "error");
+
+        showToast(
+            "Unable to connect to the Python server",
+            "error"
+        );
+
+        console.error("Load contacts error:", error);
     }
 }
+
+
+/* =========================================
+   CONTACT MODAL
+========================================= */
 
 function openContactModal(id = null) {
     const modal = $("contactModal");
 
     if (!modal) {
-        alert("contactModal not found in index.html");
+        console.error("contactModal was not found.");
         return;
     }
 
     resetContactForm();
 
-    if (id) {
-        const contact = contacts.find(item => item.id === id);
+    if (id !== null && id !== "") {
+        const contact = findContactById(id);
 
         if (!contact) {
             showToast("Contact not found", "error");
             return;
         }
 
+        populateContactForm(contact);
+
         $("modalTitle").textContent = "Edit Contact";
-        $("editId").value = contact.id;
-        $("name").value = contact.name || "";
-        $("phone").value = contact.phone || "";
-        $("category").value = contact.category || "Other";
-        $("email").value = contact.email || "";
-        $("notes").value = contact.notes || "";
     } else {
         $("modalTitle").textContent = "Add New Contact";
     }
@@ -113,27 +195,23 @@ function openContactModal(id = null) {
     modal.classList.add("active");
     document.body.classList.add("modal-open");
 
-    setTimeout(() => {
+    window.setTimeout(() => {
         $("name")?.focus();
     }, 100);
 }
 
+
 function closeContactModal() {
-    const modal = $("contactModal");
+    $("contactModal")?.classList.remove("active");
 
-    if (modal) {
-        modal.classList.remove("active");
-    }
-
-    document.body.classList.remove("modal-open");
+    updateBodyModalState();
 }
+
 
 function resetContactForm() {
     const form = $("contactForm");
 
-    if (form) {
-        form.reset();
-    }
+    form?.reset();
 
     if ($("editId")) {
         $("editId").value = "";
@@ -144,83 +222,145 @@ function resetContactForm() {
     }
 }
 
+
+function populateContactForm(contact) {
+    $("editId").value = contact.id ?? "";
+    $("name").value = contact.name ?? "";
+    $("phone").value = contact.phone ?? "";
+    $("category").value = contact.category || "Other";
+    $("email").value = contact.email ?? "";
+    $("notes").value = contact.notes ?? "";
+}
+
+
+/* =========================================
+   SAVE / UPDATE CONTACT
+========================================= */
+
 async function handleContactSubmit(event) {
     event.preventDefault();
 
-    const name = $("name").value.trim();
-    const phone = $("phone").value.trim();
-    const category = $("category").value;
-    const email = $("email").value.trim();
-    const notes = $("notes").value.trim();
-    const id = $("editId").value;
+    const formData = getContactFormData();
+    const editingId = $("editId")?.value || "";
 
-    if (!name) {
-        showToast("Name is required", "error");
-        $("name").focus();
+    const validationError = validateContact(formData, editingId);
+
+    if (validationError) {
+        showToast(validationError.message, "error");
+        validationError.element?.focus();
         return;
     }
 
-    if (!phone) {
-        showToast("Phone number is required", "error");
-        $("phone").focus();
-        return;
-    }
-
-    if (!isValidPhone(phone)) {
-        showToast("Enter a valid phone number", "error");
-        $("phone").focus();
-        return;
-    }
-
-    if (email && !isValidEmail(email)) {
-        showToast("Enter a valid email", "error");
-        $("email").focus();
-        return;
-    }
-
-    const duplicate = contacts.find(contact =>
-        normalizePhone(contact.phone) === normalizePhone(phone) &&
-        contact.id !== id
-    );
-
-    if (duplicate) {
-        showToast("Phone number already exists", "error");
-        return;
-    }
-
-    const contact = {
-        name,
-        phone,
-        category,
-        email,
-        notes
-    };
+    const isEditing = Boolean(editingId);
 
     try {
-        const response = await fetch(
-            id ? `${API}/contacts/${id}` : `${API}/contacts`,
-            {
-                method: id ? "PUT" : "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(contact)
-            }
-        );
+        const endpoint = isEditing
+            ? `/contacts/${editingId}`
+            : "/contacts";
 
-        const data = await response.json();
+        const method = isEditing
+            ? "PUT"
+            : "POST";
 
-        if (!response.ok) {
-            throw new Error(data.message || "Unable to save contact");
-        }
+        const data = await apiRequest(endpoint, {
+            method,
+            body: JSON.stringify(formData)
+        });
 
         closeContactModal();
-        showToast(data.message, "success");
+
+        showToast(
+            data.message ||
+            (isEditing
+                ? "Contact updated successfully"
+                : "Contact added successfully"),
+            "success"
+        );
+
         await loadContacts();
     } catch (error) {
-        showToast(error.message, "error");
+        showToast(
+            error.message || "Unable to save contact",
+            "error"
+        );
+
+        console.error("Save contact error:", error);
     }
 }
+
+
+function getContactFormData() {
+    return {
+        name: $("name")?.value.trim() || "",
+        phone: $("phone")?.value.trim() || "",
+        category: $("category")?.value || "Other",
+        email: $("email")?.value.trim() || "",
+        notes: $("notes")?.value.trim() || ""
+    };
+}
+
+
+function validateContact(contact, editingId = "") {
+    if (!contact.name) {
+        return {
+            message: "Name is required",
+            element: $("name")
+        };
+    }
+
+    if (contact.name.length < 2) {
+        return {
+            message: "Name must contain at least 2 characters",
+            element: $("name")
+        };
+    }
+
+    if (!contact.phone) {
+        return {
+            message: "Phone number is required",
+            element: $("phone")
+        };
+    }
+
+    if (!isValidPhone(contact.phone)) {
+        return {
+            message: "Enter a valid phone number",
+            element: $("phone")
+        };
+    }
+
+    if (
+        contact.email &&
+        !isValidEmail(contact.email)
+    ) {
+        return {
+            message: "Enter a valid email address",
+            element: $("email")
+        };
+    }
+
+    const duplicate = state.contacts.find(existing => {
+        return (
+            normalizePhone(existing.phone) ===
+                normalizePhone(contact.phone) &&
+            String(existing.id) !== String(editingId)
+        );
+    });
+
+    if (duplicate) {
+        return {
+            message: "This phone number already exists",
+            element: $("phone")
+        };
+    }
+
+    return null;
+}
+
+
+/* =========================================
+   RENDER CONTACTS
+========================================= */
 
 function renderContacts() {
     const grid = $("contactsGrid");
@@ -229,208 +369,345 @@ function renderContacts() {
         return;
     }
 
-    const search = $("searchInput")?.value.trim().toLowerCase() || "";
+    const searchTerm =
+        $("searchInput")?.value
+            .trim()
+            .toLowerCase() || "";
 
-    const filtered = contacts.filter(contact => {
-        const categoryMatch =
-            currentFilter === "all" ||
-            String(contact.category).toLowerCase() ===
-            currentFilter.toLowerCase();
+    const visibleContacts = getVisibleContacts(searchTerm);
 
-        const text = [
+    grid.replaceChildren();
+
+    visibleContacts.forEach(contact => {
+        grid.appendChild(createContactCard(contact));
+    });
+
+    if ($("visibleCount")) {
+        $("visibleCount").textContent =
+            visibleContacts.length;
+    }
+
+    visibleContacts.length === 0
+        ? showEmptyState()
+        : hideEmptyState();
+}
+
+
+function getVisibleContacts(searchTerm = "") {
+    return state.contacts.filter(contact => {
+        const categoryMatches =
+            state.activeFilter === "all" ||
+            String(contact.category || "")
+                .toLowerCase() ===
+            state.activeFilter.toLowerCase();
+
+        if (!categoryMatches) {
+            return false;
+        }
+
+        if (!searchTerm) {
+            return true;
+        }
+
+        const searchableText = [
             contact.name,
             contact.phone,
             contact.email,
             contact.category,
             contact.notes
-        ].join(" ").toLowerCase();
+        ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
 
-        return categoryMatch && text.includes(search);
+        return searchableText.includes(searchTerm);
     });
-
-    grid.innerHTML = "";
-
-    filtered.forEach(contact => {
-        grid.appendChild(createContactCard(contact));
-    });
-
-    if ($("visibleCount")) {
-        $("visibleCount").textContent = filtered.length;
-    }
-
-    if (filtered.length === 0) {
-        showEmptyState();
-    } else {
-        hideEmptyState();
-    }
 }
+
+
+/* =========================================
+   CONTACT CARD
+========================================= */
 
 function createContactCard(contact) {
     const card = document.createElement("article");
     card.className = "contact-card";
 
-    const top = document.createElement("div");
-    top.className = "contact-top";
+    const topSection = document.createElement("div");
+    topSection.className = "contact-top";
 
-    const avatar = document.createElement("div");
-    avatar.className = "contact-avatar";
-    avatar.textContent = getInitials(contact.name);
+    const avatar = createElement(
+        "div",
+        "contact-avatar",
+        getInitials(contact.name)
+    );
 
-    const info = document.createElement("div");
-    info.className = "contact-info";
+    const information = document.createElement("div");
+    information.className = "contact-info";
 
-    const name = document.createElement("h3");
-    name.className = "contact-name";
-    name.textContent = contact.name;
+    const name = createElement(
+        "h3",
+        "contact-name",
+        contact.name || "Unnamed Contact"
+    );
 
-    const phone = document.createElement("p");
-    phone.className = "contact-phone";
-    phone.textContent = formatPhone(contact.phone);
+    const phone = createElement(
+        "p",
+        "contact-phone",
+        formatPhone(contact.phone)
+    );
 
-    info.append(name, phone);
+    information.append(name, phone);
 
     if (contact.email) {
-        const email = document.createElement("p");
-        email.className = "contact-email";
-        email.textContent = contact.email;
-        info.appendChild(email);
+        information.appendChild(
+            createElement(
+                "p",
+                "contact-email",
+                contact.email
+            )
+        );
     }
 
-    const actions = document.createElement("div");
-    actions.className = "contact-actions";
+    const actions = createContactActions(contact);
 
-    const favorite = document.createElement("button");
-    favorite.type = "button";
-    favorite.className = "icon-button favorite-button";
-    favorite.textContent = contact.favorite ? "★" : "☆";
+    topSection.append(
+        avatar,
+        information,
+        actions
+    );
 
-    favorite.addEventListener("click", () => {
-        toggleFavorite(contact.id);
-    });
+    const category = createElement(
+        "span",
+        "contact-category",
+        contact.category || "Other"
+    );
 
-    const edit = document.createElement("button");
-    edit.type = "button";
-    edit.className = "icon-button";
-    edit.textContent = "✎";
-
-    edit.addEventListener("click", () => {
-        openContactModal(contact.id);
-    });
-
-    const remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "icon-button delete-button";
-    remove.textContent = "×";
-
-    remove.addEventListener("click", () => {
-        openDeleteModal(contact.id);
-    });
-
-    actions.append(favorite, edit, remove);
-    top.append(avatar, info, actions);
-
-    const category = document.createElement("span");
-    category.className = "contact-category";
-    category.textContent = contact.category || "Other";
-
-    card.append(top, category);
+    card.append(
+        topSection,
+        category
+    );
 
     if (contact.notes) {
-        const notes = document.createElement("p");
-        notes.className = "contact-notes";
-        notes.textContent = contact.notes;
-        card.appendChild(notes);
+        card.appendChild(
+            createElement(
+                "p",
+                "contact-notes",
+                contact.notes
+            )
+        );
     }
 
     return card;
 }
 
+
+function createContactActions(contact) {
+    const actions = document.createElement("div");
+    actions.className = "contact-actions";
+
+    const favoriteButton = createActionButton(
+        contact.favorite ? "★" : "☆",
+        "favorite-button",
+        contact.favorite
+            ? "Remove from favorites"
+            : "Add to favorites",
+        () => toggleFavorite(contact.id)
+    );
+
+    const editButton = createActionButton(
+        "✎",
+        "",
+        "Edit contact",
+        () => openContactModal(contact.id)
+    );
+
+    const deleteButton = createActionButton(
+        "×",
+        "delete-button",
+        "Delete contact",
+        () => openDeleteModal(contact.id)
+    );
+
+    actions.append(
+        favoriteButton,
+        editButton,
+        deleteButton
+    );
+
+    return actions;
+}
+
+
+function createActionButton(
+    text,
+    className,
+    ariaLabel,
+    handler
+) {
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.className = `icon-button ${className}`.trim();
+    button.textContent = text;
+    button.setAttribute("aria-label", ariaLabel);
+
+    button.addEventListener("click", handler);
+
+    return button;
+}
+
+
+function createElement(tag, className, text) {
+    const element = document.createElement(tag);
+
+    element.className = className;
+    element.textContent = text;
+
+    return element;
+}
+
+
+/* =========================================
+   FAVORITES
+========================================= */
+
 async function toggleFavorite(id) {
     try {
-        const response = await fetch(`${API}/contacts/${id}/favorite`, {
-            method: "PATCH"
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message);
-        }
+        const data = await apiRequest(
+            `/contacts/${id}/favorite`,
+            {
+                method: "PATCH"
+            }
+        );
 
         await loadContacts();
-        showToast(data.message, "success");
+
+        showToast(
+            data.message || "Favorite updated",
+            "success"
+        );
     } catch (error) {
-        showToast(error.message || "Unable to update favorite", "error");
+        showToast(
+            error.message ||
+            "Unable to update favorite",
+            "error"
+        );
+
+        console.error(
+            "Favorite update error:",
+            error
+        );
     }
 }
 
+
+/* =========================================
+   DELETE CONTACT
+========================================= */
+
 function openDeleteModal(id) {
-    const contact = contacts.find(item => item.id === id);
+    const contact = findContactById(id);
 
     if (!contact) {
+        showToast("Contact not found", "error");
         return;
     }
 
-    deleteContactId = id;
+    state.pendingDeleteId = id;
 
     if ($("deleteName")) {
-        $("deleteName").textContent = contact.name;
+        $("deleteName").textContent =
+            contact.name;
     }
 
     $("deleteModal")?.classList.add("active");
+
     document.body.classList.add("modal-open");
 }
 
+
 function closeDeleteModal() {
     $("deleteModal")?.classList.remove("active");
-    document.body.classList.remove("modal-open");
-    deleteContactId = null;
+
+    state.pendingDeleteId = null;
+
+    updateBodyModalState();
 }
 
+
 async function confirmDelete() {
-    if (!deleteContactId) {
+    const id = state.pendingDeleteId;
+
+    if (id === null || id === undefined) {
         return;
     }
 
     try {
-        const response = await fetch(
-            `${API}/contacts/${deleteContactId}`,
+        const data = await apiRequest(
+            `/contacts/${id}`,
             {
                 method: "DELETE"
             }
         );
 
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message);
-        }
-
         closeDeleteModal();
+
+        showToast(
+            data.message ||
+            "Contact deleted successfully",
+            "success"
+        );
+
         await loadContacts();
-        showToast(data.message, "success");
     } catch (error) {
-        showToast(error.message || "Unable to delete contact", "error");
+        showToast(
+            error.message ||
+            "Unable to delete contact",
+            "error"
+        );
+
+        console.error(
+            "Delete contact error:",
+            error
+        );
     }
 }
+
+
+/* =========================================
+   SEARCH
+========================================= */
 
 function searchContacts() {
     renderContacts();
 }
 
+
 function clearSearch() {
-    if ($("searchInput")) {
-        $("searchInput").value = "";
-        renderContacts();
-        $("searchInput").focus();
+    const searchInput = $("searchInput");
+
+    if (!searchInput) {
+        return;
     }
+
+    searchInput.value = "";
+
+    renderContacts();
+
+    searchInput.focus();
 }
 
-function filterContacts(category, button) {
-    currentFilter = category;
 
-    document.querySelectorAll(".filter").forEach(item => {
-        item.classList.remove("active");
+/* =========================================
+   CATEGORY FILTER
+========================================= */
+
+function filterContacts(category, button) {
+    state.activeFilter = category;
+
+    $$(".filter").forEach(filterButton => {
+        filterButton.classList.remove("active");
     });
 
     button?.classList.add("active");
@@ -438,21 +715,47 @@ function filterContacts(category, button) {
     renderContacts();
 }
 
+
+/* =========================================
+   STATISTICS
+========================================= */
+
 function updateStatistics() {
+    const total =
+        state.contacts.length;
+
+    const favorites =
+        state.contacts.filter(
+            contact => contact.favorite
+        ).length;
+
+    const categories =
+        new Set(
+            state.contacts.map(
+                contact =>
+                    contact.category || "Other"
+            )
+        ).size;
+
     if ($("totalContacts")) {
-        $("totalContacts").textContent = contacts.length;
+        $("totalContacts").textContent = total;
     }
 
     if ($("favoriteContacts")) {
         $("favoriteContacts").textContent =
-            contacts.filter(contact => contact.favorite).length;
+            favorites;
     }
 
     if ($("totalCategories")) {
         $("totalCategories").textContent =
-            new Set(contacts.map(contact => contact.category || "Other")).size;
+            categories;
     }
 }
+
+
+/* =========================================
+   EMPTY STATE
+========================================= */
 
 function showEmptyState() {
     if ($("emptyState")) {
@@ -464,6 +767,7 @@ function showEmptyState() {
     }
 }
 
+
 function hideEmptyState() {
     if ($("emptyState")) {
         $("emptyState").style.display = "none";
@@ -473,6 +777,19 @@ function hideEmptyState() {
         $("contactsGrid").style.display = "grid";
     }
 }
+
+
+/* =========================================
+   CONTACT HELPERS
+========================================= */
+
+function findContactById(id) {
+    return state.contacts.find(
+        contact =>
+            String(contact.id) === String(id)
+    );
+}
+
 
 function getInitials(name) {
     const words = String(name || "")
@@ -485,7 +802,9 @@ function getInitials(name) {
     }
 
     if (words.length === 1) {
-        return words[0].substring(0, 2).toUpperCase();
+        return words[0]
+            .slice(0, 2)
+            .toUpperCase();
     }
 
     return (
@@ -494,54 +813,127 @@ function getInitials(name) {
     ).toUpperCase();
 }
 
+
+function normalizePhone(phone) {
+    return String(phone || "")
+        .replace(/\D/g, "");
+}
+
+
 function formatPhone(phone) {
     const digits = normalizePhone(phone);
 
     if (digits.length === 10) {
-        return `+91 ${digits.substring(0, 5)} ${digits.substring(5)}`;
+        return `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`;
     }
 
-    return phone;
+    return phone || "No phone number";
 }
 
-function normalizePhone(phone) {
-    return String(phone || "").replace(/\D/g, "");
-}
+
+/* =========================================
+   VALIDATION HELPERS
+========================================= */
 
 function isValidPhone(phone) {
     const digits = normalizePhone(phone);
-    return digits.length >= 7 && digits.length <= 15;
+
+    return (
+        digits.length >= 7 &&
+        digits.length <= 15
+    );
 }
+
 
 function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        email
+    );
 }
 
-function showToast(message, type = "success") {
-    if (!$("toast")) {
+
+/* =========================================
+   MODAL BODY STATE
+========================================= */
+
+function updateBodyModalState() {
+    const contactModalOpen =
+        $("contactModal")?.classList.contains("active");
+
+    const deleteModalOpen =
+        $("deleteModal")?.classList.contains("active");
+
+    document.body.classList.toggle(
+        "modal-open",
+        Boolean(
+            contactModalOpen ||
+            deleteModalOpen
+        )
+    );
+}
+
+
+/* =========================================
+   TOAST
+========================================= */
+
+function showToast(
+    message,
+    type = "success"
+) {
+    const toast = $("toast");
+
+    if (!toast) {
         return;
     }
 
-    clearTimeout(toastTimer);
+    clearTimeout(state.toastTimer);
 
-    $("toastMessage").textContent = message;
-    $("toastIcon").textContent = type === "error" ? "!" : "✓";
+    if ($("toastMessage")) {
+        $("toastMessage").textContent =
+            message;
+    }
 
-    $("toast").classList.remove("success", "error");
-    $("toast").classList.add(type, "show");
+    if ($("toastIcon")) {
+        $("toastIcon").textContent =
+            type === "error"
+                ? "!"
+                : "✓";
+    }
 
-    toastTimer = setTimeout(() => {
-        $("toast").classList.remove("show");
-    }, 3000);
+    toast.classList.remove(
+        "success",
+        "error"
+    );
+
+    toast.classList.add(
+        type,
+        "show"
+    );
+
+    state.toastTimer =
+        window.setTimeout(() => {
+            toast.classList.remove("show");
+        }, 3000);
 }
+
+
+/* =========================================
+   GLOBAL FUNCTIONS
+   Required by HTML onclick attributes
+========================================= */
 
 window.openContactModal = openContactModal;
 window.closeContactModal = closeContactModal;
+
 window.searchContacts = searchContacts;
 window.clearSearch = clearSearch;
+
 window.filterContacts = filterContacts;
-window.editContact = openContactModal;
+
 window.toggleFavorite = toggleFavorite;
+
 window.openDeleteModal = openDeleteModal;
 window.closeDeleteModal = closeDeleteModal;
 window.confirmDelete = confirmDelete;
+```
